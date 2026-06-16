@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>coinbrief — AI crypto intelligence</title>
+  <meta name="description" content="Get an intelligence briefing for any cryptocurrency. Powered by CoinStats API — no external AI needed." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">coin<span class="logo-accent">brief</span></div>
+      <a href="https://coinstats.app/api/" target="_blank" rel="noopener" class="powered-by">
+        Powered by CoinStats API ↗
+      </a>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <h1 class="hero-title">AI intelligence briefings<br/>for any cryptocurrency</h1>
+      <p class="hero-sub">Type a coin. Get an analyst-grade briefing in seconds — computed from live CoinStats data by a built-in signal engine.</p>
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search any coin — bitcoin, ethereum, solana..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <div class="search-spinner" id="searchSpinner"></div>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      <div class="quick-picks">
+        <span class="quick-label">Popular:</span>
+        <button class="quick-btn" data-coin="bitcoin">BTC</button>
+        <button class="quick-btn" data-coin="ethereum">ETH</button>
+        <button class="quick-btn" data-coin="solana">SOL</button>
+        <button class="quick-btn" data-coin="dogecoin">DOGE</button>
+        <button class="quick-btn" data-coin="cardano">ADA</button>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <section class="loading-state" id="loadingState">
+      <div class="loading-bar"></div>
+      <div class="loading-steps">
+        <div class="step active" id="step1">
+          <div class="step-dot"></div>
+          <span>Fetching live data from CoinStats</span>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-dot"></div>
+          <span>Computing market signals</span>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-dot"></div>
+          <span>Generating your briefing</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Briefing Card -->
+    <section class="briefing-wrap" id="briefingWrap">
+      <button class="back-btn" id="backBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        New briefing
+      </button>
+
+      <div class="briefing-card" id="briefingCard">
+        <!-- Header -->
+        <div class="b-header">
+          <img class="b-coin-icon" id="bCoinIcon" src="" alt="" />
+          <div class="b-coin-info">
+            <div class="b-coin-name" id="bCoinName"></div>
+            <div class="b-coin-meta" id="bCoinMeta"></div>
+          </div>
+          <div class="b-price-block">
+            <div class="b-price" id="bPrice"></div>
+            <div class="b-change" id="bChange"></div>
+          </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="b-metrics" id="bMetrics"></div>
+
+        <!-- Sparkline -->
+        <div class="b-chart-wrap">
+          <canvas id="sparkline" height="80"></canvas>
+        </div>
+
+        <!-- What's Happening -->
+        <div class="b-section">
+          <div class="b-section-head">
+            <div class="b-section-icon icon-amber">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <span class="b-section-title">What's happening</span>
+          </div>
+          <p class="b-text" id="bWhatsHappening"></p>
+        </div>
+
+        <!-- Signal Scan -->
+        <div class="b-section">
+          <div class="b-section-head">
+            <div class="b-section-icon icon-purple">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <span class="b-section-title">Signal scan</span>
+          </div>
+          <div class="b-signals" id="bSignals"></div>
+        </div>
+
+        <!-- What to Watch -->
+        <div class="b-section">
+          <div class="b-section-head">
+            <div class="b-section-icon icon-teal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span class="b-section-title">What to watch</span>
+          </div>
+          <p class="b-text" id="bWhatToWatch"></p>
+        </div>
+
+        <!-- News Context -->
+        <div class="b-section">
+          <div class="b-section-head">
+            <div class="b-section-icon icon-blue">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>
+            </div>
+            <span class="b-section-title">News context</span>
+          </div>
+          <p class="b-text" id="bNewsContext"></p>
+        </div>
+
+        <!-- Verdict -->
+        <div class="b-verdict" id="bVerdict">
+          <div class="verdict-gauge" id="verdictGauge">
+            <span class="verdict-score" id="verdictScore"></span>
+            <span class="verdict-label" id="verdictLabel"></span>
+          </div>
+          <p class="verdict-text" id="verdictText"></p>
+        </div>
+
+        <!-- Footer -->
+        <div class="b-footer">
+          <span class="b-timestamp" id="bTimestamp"></span>
+          <div class="b-actions">
+            <button class="b-action-btn" id="copyBtn" title="Copy briefing">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy</span>
+            </button>
+            <button class="b-action-btn" id="refreshBtn" title="Refresh briefing">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <p class="disclaimer">
+        AI-free analysis for educational purposes only. Not financial advice.
+        Data provided by <a href="https://coinstats.app/api/" target="_blank" rel="noopener">CoinStats API</a>.
+      </p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Built with</span>
+      <a href="https://coinstats.app/api/" target="_blank" rel="noopener">CoinStats API</a>
+      <span>·</span>
+      <span>No external AI needed</span>
+      <span class="sep">·</span>
+      <a href="https://github.com" target="_blank" rel="noopener">View on GitHub</a>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

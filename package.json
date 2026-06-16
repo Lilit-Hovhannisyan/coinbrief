@@ -1,0 +1,19 @@
+{
+  "name": "coinbrief",
+  "version": "1.0.0",
+  "description": "Intelligence briefings for any cryptocurrency — powered by CoinStats API with a built-in signal engine",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["crypto", "coinstats", "bitcoin", "ethereum", "briefing", "signals", "analysis"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}
