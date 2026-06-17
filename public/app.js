@@ -474,9 +474,30 @@ function renderBriefing(coin, briefing, chartData) {
 
 function renderSparkline(chartData) {
   const canvas = $("#sparkline");
+  const wrap = canvas.parentElement;
   const ctx = canvas.getContext("2d");
+
+  // Normalize chart data — CoinStats returns various formats:
+  // [[timestamp, price], ...] or [{price: n}, ...] or {chart: [...]} or just numbers
+  let prices = [];
+  if (chartData) {
+    let raw = Array.isArray(chartData) ? chartData : (chartData.chart || chartData.data || []);
+    prices = raw.map(p => {
+      if (typeof p === "number") return p;
+      if (Array.isArray(p)) return p[1] || p[0] || 0;
+      return p.price || p.close || p.value || p[1] || 0;
+    }).filter(n => n > 0);
+  }
+
+  // Hide chart area entirely if no valid data
+  if (prices.length < 2) {
+    wrap.style.display = "none";
+    return;
+  }
+
+  wrap.style.display = "";
   const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.parentElement.getBoundingClientRect();
+  const rect = wrap.getBoundingClientRect();
   canvas.width = rect.width * dpr;
   canvas.height = 80 * dpr;
   canvas.style.width = rect.width + "px";
@@ -484,16 +505,6 @@ function renderSparkline(chartData) {
   ctx.scale(dpr, dpr);
   const w = rect.width, h = 80;
 
-  if (!chartData || !Array.isArray(chartData) || chartData.length < 2) {
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--text-muted");
-    ctx.font = "12px Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Chart data unavailable", w / 2, h / 2);
-    return;
-  }
-
-  const prices = chartData.map(p => p[1] || p.price || 0).filter(Boolean);
-  if (prices.length < 2) return;
   const min = Math.min(...prices), max = Math.max(...prices), range = max - min || 1;
   const isUp = prices[prices.length - 1] >= prices[0];
   const color = isUp ? "#1b9e5e" : "#d63031";
